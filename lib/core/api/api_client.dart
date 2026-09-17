@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'api_endpoints.dart';
 
 class ApiResponse {
@@ -183,7 +184,13 @@ class ApiClient {
         request.headers['Authorization'] = 'Bearer $token';
       }
       request.fields.addAll(fields);
-      request.files.add(await http.MultipartFile.fromPath(fileField, imageFile.path));
+      final ext = imageFile.path.split('.').last.toLowerCase();
+      final subType = (ext == 'png') ? 'png' : 'jpeg';
+      request.files.add(await http.MultipartFile.fromPath(
+        fileField,
+        imageFile.path,
+        contentType: MediaType('image', subType),
+      ));
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
@@ -226,7 +233,13 @@ class ApiClient {
       }
       request.fields.addAll(fields);
       if (imageFile != null && fileField != null) {
-        request.files.add(await http.MultipartFile.fromPath(fileField, imageFile.path));
+        final ext = imageFile.path.split('.').last.toLowerCase();
+        final subType = (ext == 'png') ? 'png' : 'jpeg';
+        request.files.add(await http.MultipartFile.fromPath(
+          fileField,
+          imageFile.path,
+          contentType: MediaType('image', subType),
+        ));
       }
 
       var streamedResponse = await request.send();

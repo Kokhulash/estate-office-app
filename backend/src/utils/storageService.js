@@ -41,7 +41,9 @@ const upload = multer({
   storage,
   limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    const isImageMime = file.mimetype.startsWith('image/');
+    const isImageExt = /\.(jpg|jpeg|png|webp|gif|bmp|heic|heif)$/i.test(file.originalname);
+    if (isImageMime || isImageExt || file.mimetype === 'application/octet-stream') {
       cb(null, true);
     } else {
       cb(new Error('Only image files are permitted'));
